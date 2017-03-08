@@ -3,6 +3,7 @@ package packt.mastering.java9.process;
 import packt.mastering.java9.stackwalker.DumpStack;
 import packt.mastering.java9.stackwalker.LogSetter;
 
+import java.lang.ProcessHandle.Info;
 import java.lang.System.Logger;
 
 public class ProcessLister {
@@ -16,12 +17,18 @@ public class ProcessLister {
         LOG.log(Logger.Level.DEBUG, format, message);
     }
 
+    private static boolean looksLikeJavaProcess(Info info){
+        return info.command().isPresent() &&
+                info.command().get().toLowerCase().indexOf("java") != -1;
+    }
+
     public static void main(String[] args) {
-        LOG.log(Logger.Level.DEBUG, "starting");
-        DumpStack.dump(System.out);
-        ProcessHandle.allProcesses().map(ProcessHandle::info).forEach(
+        ProcessHandle.allProcesses().
+                map(ProcessHandle::info).
+                filter( info -> looksLikeJavaProcess(info) ).
+                forEach(
                 (info) -> debug("{0} {1}", info.user().orElse("nobody"),
-                        info.command().orElse(info.commandLine().orElse(" noname-process")))
+                        info.command().orElse(" noname-process"))
         );
     }
 
