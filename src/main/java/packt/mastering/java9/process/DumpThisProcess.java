@@ -19,12 +19,22 @@ public class DumpThisProcess {
         out("Start time: {0}", info.startInstant().orElse(Instant.EPOCH));
         out("User: {0}", info.user().orElse("??"));
         out("Pid: {0,number,#}", me.getPid());
-        out("Children","");
-        me.children().forEach( child -> out("child pid:",child.getPid()));
-        out("Descendants","");
-        me.descendants().forEach( descendant -> out("descendant pid:",descendant.getPid()));
-        out("toString {0}",me.info().toString());
-        out("Cwd: {0}",new java.io.File( "." ).getCanonicalPath());
+        out("Children", "");
+        me.children().forEach(child -> out("child pid:", child.getPid()));
+        out("Descendants", "");
+        me.descendants().forEach(descendant -> out("descendant pid:", descendant.getPid()));
+
+        me.parent().ifPresentOrElse(parent -> out("Parent: {0}", parent.info()), () -> out("no parent", ""));
+
+        if (me.parent().isPresent() &&
+                me.parent().get().info().startInstant().isPresent() &&
+                me.info().startInstant().isPresent()) {
+            out("Parent started me after {0}ms",
+                    Duration.between(me.parent().get().info().startInstant().get(),
+                            me.info().startInstant().get()).toMillis());
+        }
+        out("toString {0}", me.info().toString());
+        out("Cwd: {0}", new java.io.File(".").getCanonicalPath());
         System.exit(523);
     }
 }
