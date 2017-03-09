@@ -1,5 +1,6 @@
 package packt.mastering.java9.process;
 
+import java.io.IOException;
 import java.lang.ProcessHandle.Info;
 import java.time.Duration;
 import java.time.Instant;
@@ -7,7 +8,7 @@ import java.time.Instant;
 import static packt.mastering.java9.process.DemoOutput.out;
 
 public class DumpThisProcess {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         ProcessHandle me = ProcessHandle.current();
         Info info = me.info();
         out("Command: {0}", info.command().orElse("??"));
@@ -23,5 +24,7 @@ public class DumpThisProcess {
         out("Descendants","");
         me.descendants().forEach( descendant -> out("descendant pid:",descendant.getPid()));
         out("toString {0}",me.info().toString());
+        out("Cwd: {0}",new java.io.File( "." ).getCanonicalPath());
+        System.exit(523);
     }
 }
